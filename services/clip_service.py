@@ -336,6 +336,7 @@ class ClipService:
                     "score": match.score,
                     "type": match.metadata.get("type", "unknown"),
                     "source": match.metadata.get("source", ""),
+                    "content": match.metadata.get("content", "") if match.metadata.get("type") == "text" else match.metadata.get("page_text", "")
                 }
                 
                 if match.metadata.get("type") == "image":
@@ -502,6 +503,55 @@ Based on the matched content, provide a detailed answer to the user's question."
         except Exception as e:
             raise Exception(f"Error: {str(e)}")
 
+    @traceable(run_type="chain")
+    async def ask_by_text(self, query: str, top_k: int = 5) -> Dict[str, Any]:
+        """Answer text-based questions using retrieved context"""
+        if not self.initialized:
+            raise Exception("CLIP Service not initialized")
+        
+        try:
+            # Get similar content
+            results = await self.query_unified(query, top_k=top_k)
+            
+            if not results:
+                return {
+                    "answer": "I couldn't find relevant information to answer this question.",
+                    "sources": [],
+                    "confidence": 0.0
+                }
+            
+            # Build context from results
+            contexts = []
+            sources = set()
+            
+            for result in results:
+                sources.add(result["source"])
+                if result.get("content"):
+                    contexts.append(result["content"][:500])
+            
+            # Generate answer
+            context = "\n\n".join(contexts[:5])
+            confidence = results[0]["score"] if results else 0.0
+            
+            prompt = f"""You are an expert assistant. Answer the user's question based on the provided context.
+
+User's question: "{query}"
+
+Context from documents:
+{context}
+
+Provide a clear, detailed answer based on the context above. If the context doesn't contain enough information, say so."""
+
+            response = self.llm.invoke(prompt)
+            
+            return {
+                "answer": response.content,
+                "sources": list(sources),
+                "confidence": confidence
+            }
+            
+        except Exception as e:
+            raise Exception(f"Error: {str(e)}")
 
 # Singleton instance
 clip_service = ClipService()

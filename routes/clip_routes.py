@@ -23,6 +23,7 @@ class UnifiedResult(BaseModel):
     score: float
     type: str  # "text" or "image"
     source: str
+    content: Optional[str] = None
     # Image-specific fields (optional)
     image_url: Optional[str] = None
     page: Optional[int] = None
@@ -211,3 +212,26 @@ async def query_by_image(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error in image search: {str(e)}")
+
+@router.post("/ask-by-text")
+async def ask_by_text(
+    query: str = Query(..., description="Your question"),
+    top_k: int = Query(5, description="Number of context chunks to retrieve")
+):
+    """
+    Ask a text-based question and get an AI-generated answer.
+    
+    Example: "What is citrus canker?" → Returns detailed LLM answer
+    """
+    try:
+        result = await clip_service.ask_by_text(query, top_k)
+        
+        return {
+            "query": query,
+            "answer": result["answer"],
+            "sources": result["sources"],
+            "confidence": result["confidence"]
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
