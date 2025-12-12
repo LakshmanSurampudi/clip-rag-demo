@@ -1,0 +1,28 @@
+# Python 3.11 dependencies for Multimodal RAG
+
+# Core
+python-dotenv
+fastapi
+uvicorn
+
+# CLIP & Image Processing
+transformers>=4.30.0
+torch>=2.0.0
+Pillow
+pymupdf
+
+# Vector Store
+pinecone
+
+# LangChain
+langchain
+langchain-core
+langchain-text-splitters
+langchain-google-genai
+langchain-pinecone
+
+# Utilities
+python-multipart
+langsmith
+pydantic
+requests

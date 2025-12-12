@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Static files
+static/images/*
+!static/images/.gitkeep
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+```
+
+---
+
+## Quick Setup Instructions
+
+1. **Create the folder structure:**
+```
+your-project/
+├── main.py
+├── requirements.txt
+├── .env (copy from .env.template)
+├── .gitignore
+├── routes/
+│   └── clip_routes.py
+└── services/
+    ├── clip_service.py
+    └── local_storage.py
